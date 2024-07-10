@@ -73,7 +73,7 @@ public class User implements UserDetails {
     public User() {
         this.username = "";
         this.password = "";
-        this.role = Role.INVITED;
+        this.role = Role.USER;
         this.userDetail = new UserDetail();
         this.reviews = new ArrayList<>();
         this.storableItems = new ArrayList<>();
