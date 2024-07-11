@@ -20,6 +20,4 @@ public interface ReviewService {
     void updateReviewComment(Long id, ReviewUpdateRequest request);
     void deleteReviewById(Long id);
     boolean existReviewById(Long id);
-
-
 }

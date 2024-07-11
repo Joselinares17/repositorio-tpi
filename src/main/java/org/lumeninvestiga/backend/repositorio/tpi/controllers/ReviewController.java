@@ -33,7 +33,7 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.OK).body(reviewService.getAllReviews(pageable));
     }
 
-    @GetMapping("/{article_id}")
+    @GetMapping("/reviews/{article_id}")
     public ResponseEntity<?> readReviewsByArticleId(@PathVariable("article_id") Long reviewId, @PageableDefault Pageable pageable) {
         return ResponseEntity.ok(reviewService.getReviewsByArticleId(reviewId, pageable));
     }
