@@ -23,7 +23,7 @@ LumenInvestiga tiene como objetivo principal facilitar la gestión, almacenamien
 
 ## Usuarios del Sistema
 
-- Profesores / Asesores.
+- Profesores
 - Alumnos que cursen la asignatura de TPI.
 
 ## Tecnologías Utilizadas
