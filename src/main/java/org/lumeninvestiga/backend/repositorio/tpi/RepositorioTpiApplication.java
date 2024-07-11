@@ -1,5 +1,8 @@
 package org.lumeninvestiga.backend.repositorio.tpi;
 
+import org.lumeninvestiga.backend.repositorio.tpi.controllers.AuthController;
+import org.lumeninvestiga.backend.repositorio.tpi.dto.request.UserRegistrationRequest;
+import org.lumeninvestiga.backend.repositorio.tpi.dto.response.AuthResponse;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.data.Article;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.data.ArticleDetail;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.user.Review;
@@ -10,12 +13,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootApplication
 
@@ -29,17 +34,7 @@ public class RepositorioTpiApplication {
 
 	@Bean
 	CommandLineRunner commandLineRunner(UserRepository userRepository, ArticleRepository articleRepository,
-										FolderRepository folderRepository, ReviewRepository reviewRepository,
-										PasswordEncoder passwordEncoder) throws IOException {
-//		Role roleAdmin = new Role("ROLE_ADMIN");
-//		Role roleUser = new Role("ROLE_USER");
-//		Role roleStudent = new Role("ROLE_STUDENT");
-//		Role roleAdvisor = new Role("ROLE_ADVISOR");
-
-//		roleRepository.save(roleAdmin);
-//		roleRepository.save(roleUser);
-//		roleRepository.save(roleStudent);
-//		roleRepository.save(roleAdvisor);
+										ReviewRepository reviewRepository, AuthController authController) throws IOException {
 
 		User user = new User();
 		user.setUsername("20114234");
@@ -110,6 +105,15 @@ public class RepositorioTpiApplication {
 			articleRepository.save(item);
 			System.out.println("Articulo: " + item.getArticleDetail().getTitle() + " guardado." );
 		}
+
+		ResponseEntity<Optional<AuthResponse>> response = authController.register(
+				new UserRegistrationRequest("Jose", "Linares","20184082",
+						"20184082@aloe.ulima.edu.pe", "admin1234")
+		);
+
+		System.out.println(response.getBody().get().token());
+
+
 
 		return args -> {
 			System.out.println("Usuario guardado " + user.getUserDetail().getName());
