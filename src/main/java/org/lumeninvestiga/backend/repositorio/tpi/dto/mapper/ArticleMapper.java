@@ -18,7 +18,7 @@ public interface ArticleMapper {
     @Mapping(target = "area", source = "area")
     @Mapping(target = "subArea", source = "subArea")
     @Mapping(target = "period", source = "period")
-    @Mapping(target = "ods", source = "ODS")
+    @Mapping(target = "ods", source = "ods")
     @Mapping(target = "title", source = "title")
     @Mapping(target = "author", source = "author")
     @Mapping(target = "advisor", source = "advisor")
