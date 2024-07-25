@@ -12,6 +12,7 @@ import org.mapstruct.factory.Mappers;
 public interface ArticleMapper {
     ArticleMapper INSTANCE = Mappers.getMapper(ArticleMapper.class);
 
+    @Mapping(target = "id", source = "id")
     @Mapping(target = "articleDetailDTO", source = "articleDetail")
     ArticleResponse toArticleResponse(Article article);
 
