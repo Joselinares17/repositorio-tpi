@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -87,6 +88,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SavingErrorException.class)
     public ResponseEntity<ErrorResponse> savingErrorException(SavingErrorException e,
                                                                 HttpServletRequest request) {
+        ErrorResponse response = new ErrorResponse(
+                request.getRequestURI(),
+                e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InvalidRegisterException.class)
+    public ResponseEntity<ErrorResponse> invalidRegistrationException(InvalidRegisterException e,
+                                                        HttpServletRequest request) {
         ErrorResponse response = new ErrorResponse(
                 request.getRequestURI(),
                 e.getMessage(),
