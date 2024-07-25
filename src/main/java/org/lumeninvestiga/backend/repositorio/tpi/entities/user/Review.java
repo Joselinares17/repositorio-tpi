@@ -2,11 +2,11 @@ package org.lumeninvestiga.backend.repositorio.tpi.entities.user;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Data;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.data.Article;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-
 @Entity
 @Table(
         name = "reviews"
@@ -36,7 +36,6 @@ public class Review {
         this.createdDate = LocalDateTime.now();
         this.likeCount = 0;
         this.comment = "";
-        this.article = new Article();
     }
 
     public Long getId() {
@@ -63,6 +62,10 @@ public class Review {
         return createdDate;
     }
 
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public User getUser() {
         return user;
     }
@@ -87,18 +90,5 @@ public class Review {
         if(this.likeCount > 0) {
             this.likeCount--;
         }
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Review review = (Review) object;
-        return Objects.equals(id, review.id) && Objects.equals(likeCount, review.likeCount) && Objects.equals(comment, review.comment) && Objects.equals(createdDate, review.createdDate) && Objects.equals(user, review.user) && Objects.equals(article, review.article);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, likeCount, comment, createdDate, user, article);
     }
 }

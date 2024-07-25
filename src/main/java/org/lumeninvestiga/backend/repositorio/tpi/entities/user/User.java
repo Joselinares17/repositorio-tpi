@@ -2,7 +2,9 @@ package org.lumeninvestiga.backend.repositorio.tpi.entities.user;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import org.lumeninvestiga.backend.repositorio.tpi.entities.data.StorableItem;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.lumeninvestiga.backend.repositorio.tpi.entities.data.Article;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,26 +15,16 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Inheritance(
-        strategy = InheritanceType.JOINED
-)
 @Table(
         name = "users"
 )
 public class User implements UserDetails {
     @Id
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_seq"
-    )
-    @SequenceGenerator(
-            name = "user_seq",
-            sequenceName = "user_sequence",
-            allocationSize = 1
+            strategy = GenerationType.IDENTITY
     )
     private Long id;
-
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = true)
     private String password;
@@ -62,29 +54,29 @@ public class User implements UserDetails {
     private List<Review> reviews;
 
     @OneToMany(
-            targetEntity = StorableItem.class,
+            targetEntity = Article.class,
             cascade = CascadeType.REMOVE,
             fetch = FetchType.LAZY,
             mappedBy = "user"
     )
     @JsonManagedReference
-    private List<StorableItem> storableItems;
+    private List<Article> articles;
 
     public User() {
         this.username = "";
         this.password = "";
-        this.role = Role.USER;
+        this.role = Role.STUDENT;
         this.userDetail = new UserDetail();
         this.reviews = new ArrayList<>();
-        this.storableItems = new ArrayList<>();
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+        this.articles = new ArrayList<>();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setUsername(String username) {
@@ -93,16 +85,6 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
     }
 
     public Role getRole() {
@@ -129,12 +111,22 @@ public class User implements UserDetails {
         this.reviews = reviews;
     }
 
-    public List<StorableItem> getStorableItems() {
-        return storableItems;
+    public List<Article> getArticles() {
+        return articles;
     }
 
-    public void setStorableItems(List<StorableItem> storableItems) {
-        this.storableItems = storableItems;
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
     }
 
     @Override
@@ -172,14 +164,14 @@ public class User implements UserDetails {
         review.setUser(null);
     }
 
-    public void addStorableItem(StorableItem storableItem) {
-        this.storableItems.add(storableItem);
-        storableItem.setUser(this);
+    public void addArticle(Article article) {
+        this.articles.add(article);
+        article.setUser(this);
     }
 
-    public void removeStorableItem(StorableItem storableItem) {
-        this.storableItems.remove(storableItem);
-        storableItem.setUser(null);
+    public void removeArticle(Article article) {
+        this.articles.remove(article);
+        article.setUser(null);
     }
 
     @Override
@@ -187,11 +179,11 @@ public class User implements UserDetails {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(userDetail, user.userDetail) && Objects.equals(reviews, user.reviews) && Objects.equals(storableItems, user.storableItems) && role == user.role;
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && role == user.role && Objects.equals(userDetail, user.userDetail) && Objects.equals(reviews, user.reviews) && Objects.equals(articles, user.articles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userDetail, reviews, storableItems, role);
+        return Objects.hash(id, username, password, role, userDetail, reviews, articles);
     }
 }

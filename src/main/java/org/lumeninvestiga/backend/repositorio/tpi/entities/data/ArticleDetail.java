@@ -1,6 +1,7 @@
 package org.lumeninvestiga.backend.repositorio.tpi.entities.data;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -75,11 +76,11 @@ public class ArticleDetail {
         this.period = period;
     }
 
-    public String getODS() {
+    public String getOds() {
         return ods;
     }
 
-    public void setODS(String ods) {
+    public void setOds(String ods) {
         this.ods = ods;
     }
 
@@ -121,18 +122,5 @@ public class ArticleDetail {
 
     public void setKeywords(String keywords) {
         this.keywords = keywords;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        ArticleDetail that = (ArticleDetail) object;
-        return Objects.equals(id, that.id) && Objects.equals(area, that.area) && Objects.equals(subArea, that.subArea) && Objects.equals(period, that.period) && Objects.equals(ods, that.ods) && Objects.equals(title, that.title) && Objects.equals(author, that.author) && Objects.equals(advisor, that.advisor) && Objects.equals(resume, that.resume) && Objects.equals(keywords, that.keywords);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, area, subArea, period, ods, title, author, advisor, resume, keywords);
     }
 }

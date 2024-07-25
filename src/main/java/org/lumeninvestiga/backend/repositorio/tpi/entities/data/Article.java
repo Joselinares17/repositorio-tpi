@@ -1,8 +1,16 @@
 package org.lumeninvestiga.backend.repositorio.tpi.entities.data;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.user.Review;
+import org.lumeninvestiga.backend.repositorio.tpi.entities.user.User;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,9 +18,39 @@ import java.util.Objects;
 @Table(
         name = "articles"
 )
-public class Article extends File{
+public class Article {
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
+    private Long id;
+    @Column(nullable = false)
+    private String name;
+    @Column(nullable = false)
+    private Long size;
+    @Column(name="created_date",  nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdDate;
+    @Column(updatable = false, columnDefinition = "LONGBLOB")
+    private byte[] data;
+    @Column(name = "mime_type")
+    private String mimeType;
     @Column(name = "like_count", nullable = false)
     private Integer likeCount;
+
+    @ManyToOne(targetEntity = User.class)
+    @JsonBackReference
+    private User user;
+
+    @OneToOne(
+            targetEntity = ArticleDetail.class,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.REMOVE,
+                    CascadeType.REFRESH
+            }
+    )
+    private ArticleDetail articleDetail;
 
     @OneToMany(
             targetEntity = Review.class,
@@ -25,28 +63,77 @@ public class Article extends File{
     )
     private List<Review> reviews;
 
-    @OneToOne(
-            targetEntity = ArticleDetail.class,
-            cascade = {
-              CascadeType.PERSIST,
-              CascadeType.REMOVE,
-              CascadeType.REFRESH
-            }
-    )
-    private ArticleDetail articleDetail;
-
     public Article() {
-        super();
+        this.name = "";
+        this.size = 0L;
+        this.createdDate = LocalDateTime.now();
         this.likeCount = 0;
         this.articleDetail = new ArticleDetail();
+        this.reviews = new ArrayList<>();
     }
 
-    public List<Review> getReviews() {
-        return reviews;
+    public Long getId() {
+        return id;
     }
 
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public ArticleDetail getArticleDetail() {
@@ -57,6 +144,15 @@ public class Article extends File{
         this.articleDetail = articleDetail;
     }
 
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    //TODO: Mover estos métodos a un utils de la clase.
     public void incrementLikeCount() {
         this.likeCount++;
     }
@@ -65,18 +161,5 @@ public class Article extends File{
         if(this.likeCount > 0) {
             this.likeCount--;
         }
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Article article = (Article) object;
-        return Objects.equals(likeCount, article.likeCount) && Objects.equals(reviews, article.reviews) && Objects.equals(articleDetail, article.articleDetail);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(likeCount, reviews, articleDetail);
     }
 }
