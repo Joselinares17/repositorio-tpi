@@ -3,7 +3,9 @@ package org.lumeninvestiga.backend.repositorio.tpi.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.ArticleUpdateRequest;
+import org.lumeninvestiga.backend.repositorio.tpi.dto.response.ArticleResponse;
 import org.lumeninvestiga.backend.repositorio.tpi.services.ArticleService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/articles")
@@ -23,19 +26,19 @@ public class ArticleController {
     }
 
     @GetMapping
-    public ResponseEntity<?> readAllArticles(@PageableDefault Pageable pageable) {
+    public ResponseEntity<List<ArticleResponse>> readAllArticles(@PageableDefault Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(articleService.getAllArticles(pageable));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> readAllArticlesByKeyword(
+    public ResponseEntity<List<ArticleResponse>> readAllArticlesByKeyword(
             @PageableDefault Pageable pageable,
             @RequestParam String keyword) {
         return ResponseEntity.status(HttpStatus.OK).body(articleService.getAllArticlesByKeyword(pageable, keyword));
     }
 
     @GetMapping("/v2/search")
-    public ResponseEntity<?> searchArticles(
+    public ResponseEntity<Page<ArticleResponse>> searchArticles(
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) String area,
             @RequestParam(required = false) String subArea,
@@ -55,21 +58,22 @@ public class ArticleController {
             value = "/upload",
             consumes = "multipart/form-data",
             produces = "application/json")
-    public ResponseEntity<?> uploadFiles(@RequestParam("files") List<MultipartFile> files, HttpServletRequest httpRequest) {
+    public ResponseEntity<Void> uploadFiles(@RequestParam("files") List<MultipartFile> files, HttpServletRequest httpRequest) {
         articleService.saveArticle(files, httpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<?> readByName(@PathVariable String name) {
+    public ResponseEntity<Optional<ArticleResponse>> readByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.FOUND).body(articleService.getArticleByName(name));
     }
 
     @GetMapping("/{article_id}")
-    public ResponseEntity<?> readArticleById(@PathVariable("article_id") Long articleId) {
+    public ResponseEntity<Optional<ArticleResponse>> readArticleById(@PathVariable("article_id") Long articleId) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(articleService.getArticleById(articleId));
     }
 
+    //TODO: Terminar de implementar
     @PutMapping("/{article_id}")
     public ResponseEntity<?> updateArticleById(
             @PathVariable("article_id") Long articleId,
@@ -79,8 +83,10 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
+    //TODO: Agregar un @PatchMapping
+
     @DeleteMapping("/{article_id}")
-    public ResponseEntity<?> deleteArticleById(@PathVariable("article_id") Long articleId){
+    public ResponseEntity<Void> deleteArticleById(@PathVariable("article_id") Long articleId){
         articleService.deleteArticleById(articleId);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }

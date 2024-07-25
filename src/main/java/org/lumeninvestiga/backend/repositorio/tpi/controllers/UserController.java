@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -24,12 +25,12 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> readUsers(@PageableDefault Pageable pageable) {
+    public ResponseEntity<List<UserResponse>> readUsers(@PageableDefault Pageable pageable) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(userService.getAllUsers(pageable));
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<?> readUser(@PathVariable("user_id") Long userId) {
+    public ResponseEntity<Optional<UserResponse>> readUser(@PathVariable("user_id") Long userId) {
         Optional<UserResponse> response = userService.getUserById(userId);
         if(response.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -39,7 +40,7 @@ public class UserController {
 
     //TODO: Considerar eliminarla es igual al anterior.
     @GetMapping("/{user_id}/profile")
-    public ResponseEntity<?> readUserProfile(@PathVariable("user_id") Long userId) {
+    public ResponseEntity<Optional<UserResponse>> readUserProfile(@PathVariable("user_id") Long userId) {
         Optional<UserResponse> response = userService.getUserById(userId);
         if(response.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -48,7 +49,7 @@ public class UserController {
     }
 
     @PutMapping("/{user_id}")
-    public ResponseEntity<?> updateUserById(
+    public ResponseEntity<Optional<UserResponse>> updateUserById(
             @PathVariable("user_id") Long userId,
             @Valid @RequestBody UserUpdateRequest request) {
         Optional<UserResponse> response = userService.updateUserById(userId, request);
@@ -58,8 +59,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
+    //TODO: Agregar @PatchMapping para modificar atributos específicos y evitar volver a crear
+    // un nuevo objeto para la modificación de algún campo.
+
     @DeleteMapping("/{user_id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable("user_id") Long userId) {
+    public ResponseEntity<Void> deleteUserById(@PathVariable("user_id") Long userId) {
         boolean responseStatus = userService.deleteUserById(userId);
         if(!responseStatus) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
