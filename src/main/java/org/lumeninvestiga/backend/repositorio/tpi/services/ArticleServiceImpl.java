@@ -96,7 +96,7 @@ public class ArticleServiceImpl implements ArticleService{
 
             articleDb.getArticleDetail().setArea(getArea(fichaList));
             articleDb.getArticleDetail().setSubArea(getSubArea(fichaList));
-            articleDb.getArticleDetail().setODS(fichaList.get(3));
+            articleDb.getArticleDetail().setOds(fichaList.get(3));
 
             articleRepository.save(articleDb);
         } catch (IOException e) {

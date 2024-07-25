@@ -5,6 +5,7 @@ import org.lumeninvestiga.backend.repositorio.tpi.dto.request.UserRegistrationRe
 import org.lumeninvestiga.backend.repositorio.tpi.dto.response.AuthResponse;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.user.Role;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.user.User;
+import org.lumeninvestiga.backend.repositorio.tpi.exceptions.InvalidRegisterException;
 import org.lumeninvestiga.backend.repositorio.tpi.repositories.UserRepository;
 import org.lumeninvestiga.backend.repositorio.tpi.security.jwt.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 
 @Service
@@ -43,14 +45,20 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public Optional<AuthResponse> register(UserRegistrationRequest request) {
-        User user = new User();
-        user.getUserDetail().setName(request.name());
-        user.getUserDetail().setLastName(request.lastName());
-        user.getUserDetail().setEmailAddress(request.emailAddress());
-        user.setUsername(request.username());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(Role.USER);
-        userRepository.save(user);
-        return Optional.of(new AuthResponse(jwtService.getToken(user)));
+        if(userRepository.existsByEmailAddress(request.emailAddress())) {
+            throw new InvalidRegisterException("No se pudo registrar la cuenta");
+        } else if (userRepository.existsByUsername(request.username())) {
+            throw new InvalidRegisterException("No se pudo registrar la cuenta");
+        } else {
+            User user = new User();
+            user.getUserDetail().setName(request.name());
+            user.getUserDetail().setLastName(request.lastName());
+            user.getUserDetail().setEmailAddress(request.emailAddress());
+            user.setUsername(request.username());
+            user.setPassword(passwordEncoder.encode(request.password()));
+            user.setRole(Role.STUDENT);
+            userRepository.save(user);
+            return Optional.of(new AuthResponse(jwtService.getToken(user)));
+        }
     }
 }
