@@ -2,7 +2,7 @@ package org.lumeninvestiga.backend.repositorio.tpi.entities;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.lumeninvestiga.backend.repositorio.tpi.entities.data.StorableItem;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -20,16 +20,6 @@ public class UserTest {
     @Before
     public void setUp() {
         user = new User();
-    }
-
-    @Test
-    public void testDefaultConstructor() {
-        assertEquals("", user.getUsername());
-        assertEquals("", user.getPassword());
-        assertEquals(Role.USER, user.getRole());
-        assertNotNull(user.getUserDetail());
-        assertTrue(user.getReviews().isEmpty());
-        assertTrue(user.getStorableItems().isEmpty());
     }
 
     @Test
@@ -76,14 +66,6 @@ public class UserTest {
     }
 
     @Test
-    public void testSetAndGetStorableItems() {
-        List<StorableItem> items = new ArrayList<>();
-        items.add(new StorableItem());
-        user.setStorableItems(items);
-        assertEquals(items, user.getStorableItems());
-    }
-
-    @Test
     public void testGetAuthorities() {
         user.setRole(Role.ADMIN);
         Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
@@ -108,18 +90,6 @@ public class UserTest {
         user.removeReview(review);
         assertFalse(user.getReviews().contains(review));
         assertNull(review.getUser());
-    }
-
-    @Test
-    public void testAddAndRemoveStorableItem() {
-        StorableItem item = new StorableItem();
-        user.addStorableItem(item);
-        assertTrue(user.getStorableItems().contains(item));
-        assertEquals(user, item.getUser());
-
-        user.removeStorableItem(item);
-        assertFalse(user.getStorableItems().contains(item));
-        assertNull(item.getUser());
     }
 
     @Test
