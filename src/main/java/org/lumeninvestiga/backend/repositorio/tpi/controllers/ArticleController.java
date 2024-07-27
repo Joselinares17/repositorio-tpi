@@ -64,13 +64,13 @@ public class ArticleController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<Optional<ArticleResponse>> readByName(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.FOUND).body(articleService.getArticleByName(name));
+    public ResponseEntity<ArticleResponse> readByName(@PathVariable String name) {
+        return ResponseEntity.status(HttpStatus.FOUND).body(articleService.getArticleByName(name).get());
     }
 
     @GetMapping("/{article_id}")
-    public ResponseEntity<Optional<ArticleResponse>> readArticleById(@PathVariable("article_id") Long articleId) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(articleService.getArticleById(articleId));
+    public ResponseEntity<ArticleResponse> readArticleById(@PathVariable("article_id") Long articleId) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(articleService.getArticleById(articleId).get());
     }
 
     //TODO: Terminar de implementar

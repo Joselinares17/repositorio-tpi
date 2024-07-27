@@ -30,33 +30,34 @@ public class UserController {
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<Optional<UserResponse>> readUser(@PathVariable("user_id") Long userId) {
+    public ResponseEntity<UserResponse> readUser(@PathVariable("user_id") Long userId) {
         Optional<UserResponse> response = userService.getUserById(userId);
         if(response.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response.get());
     }
+
 
     //TODO: Considerar eliminarla es igual al anterior.
     @GetMapping("/{user_id}/profile")
-    public ResponseEntity<Optional<UserResponse>> readUserProfile(@PathVariable("user_id") Long userId) {
+    public ResponseEntity<UserResponse> readUserProfile(@PathVariable("user_id") Long userId) {
         Optional<UserResponse> response = userService.getUserById(userId);
         if(response.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response.get());
     }
 
     @PutMapping("/{user_id}")
-    public ResponseEntity<Optional<UserResponse>> updateUserById(
+    public ResponseEntity<UserResponse> updateUserById(
             @PathVariable("user_id") Long userId,
             @Valid @RequestBody UserUpdateRequest request) {
         Optional<UserResponse> response = userService.updateUserById(userId, request);
         if(response.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response.get());
     }
 
     //TODO: Agregar @PatchMapping para modificar atributos específicos y evitar volver a crear

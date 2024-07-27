@@ -23,20 +23,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Optional<AuthResponse>> login(@RequestBody UserLoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody UserLoginRequest request) {
         Optional<AuthResponse> response = authService.login(request);
-        if(response.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return response.map(authResponse -> ResponseEntity.status(HttpStatus.OK).body(authResponse))
+                .orElseGet(
+                        () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                );
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Optional<AuthResponse>> register(@RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody UserRegistrationRequest request) {
         Optional<AuthResponse> response = authService.register(request);
-        if(response.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return response.map(authResponse -> ResponseEntity.status(HttpStatus.OK).body(authResponse))
+                .orElseGet(
+                        () -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                );
     }
 }
