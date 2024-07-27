@@ -1,5 +1,6 @@
 package org.lumeninvestiga.backend.repositorio.tpi.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.mapper.UserMapper;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.UserLoginRequest;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.UserRegistrationRequest;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService{
     public Optional<UserResponse> saveUser(UserRegistrationRequest request) {
         Optional<User> userOptional = userRepository.findByEmailAddress(request.emailAddress());
         if(userOptional.isPresent()) {
-            throw new InvalidResourceException("Solicitud invalida");
+            throw new InvalidResourceException("invalid request");
         }
         User userRequest = new User();
         userRequest.setUsername(request.username());
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService{
         userRequest.getUserDetail().setName(request.name());
         userRequest.getUserDetail().setLastName(request.lastName());
         userRequest.getUserDetail().setEmailAddress(request.emailAddress());
-
+        log.info("save data user {}", userRequest);
         userRepository.save(userRequest);
         return Optional.of(UserMapper.INSTANCE.toUserResponse(userRequest));
     }
@@ -49,6 +50,7 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers(Pageable pageable) {
         int page = Utility.getCurrentPage(pageable);
+        log.info("query users by page {}", page);
         return userRepository.findAll(PageRequest.of(page, pageable.getPageSize())).stream()
                 .map(UserMapper.INSTANCE::toUserResponse)
                 .toList();
@@ -59,8 +61,9 @@ public class UserServiceImpl implements UserService{
     public Optional<UserResponse> getUserById(Long id) {
         Optional<User> userOptional = userRepository.findById(id);
         if(userOptional.isEmpty()) {
-            throw new NotFoundResourceException("No se encontró el recurso solicitado");
+            throw new NotFoundResourceException("requested resource was not found");
         }
+        log.info("get user by id {}", userOptional.get());
         return Optional.of(UserMapper.INSTANCE.toUserResponse(userOptional.get()));
     }
 
@@ -73,8 +76,9 @@ public class UserServiceImpl implements UserService{
             userDb.getUserDetail().setLastName(request.lastName());
             userDb.getUserDetail().setEmailAddress(request.emailAddress());
         },
-                () -> new NotFoundResourceException("No se encontró el recurso solicitado")
+                () -> new NotFoundResourceException("requested resource was not found")
         );
+        log.info("update user data {}", userOptional.get());
         return Optional.of(UserMapper.INSTANCE.toUserResponse(userOptional.get()));
     }
 
@@ -85,6 +89,7 @@ public class UserServiceImpl implements UserService{
             return false;
         }
         userRepository.deleteById(id);
+        log.info("user deleted");
         return true;
     }
 

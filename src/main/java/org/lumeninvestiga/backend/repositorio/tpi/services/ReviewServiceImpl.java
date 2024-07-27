@@ -1,6 +1,7 @@
 package org.lumeninvestiga.backend.repositorio.tpi.services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.mapper.ReviewMapper;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.ReviewPostRequest;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.ReviewUpdateRequest;
@@ -27,6 +28,7 @@ import java.util.Optional;
 
 import static org.lumeninvestiga.backend.repositorio.tpi.utils.Utility.extractTokenFromRequest;
 
+@Slf4j
 @Service
 public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
@@ -59,8 +61,8 @@ public class ReviewServiceImpl implements ReviewService{
         reviewRequest.setUser(currentUser.get());
         reviewRequest.getArticle().setId(articleId);
         reviewRequest.setComment(request.comment());
-
         reviewRepository.save(reviewRequest);
+        log.info("save data review {}", reviewRequest);
         return Optional.of(ReviewMapper.INSTANCE.toReviewResponse(reviewRequest));
     }
 
@@ -68,6 +70,7 @@ public class ReviewServiceImpl implements ReviewService{
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getAllReviews(Pageable pageable) {
         int page = Utility.getCurrentPage(pageable);
+        log.info("query reviews by page {}", page);
         Page<Review> reviews = reviewRepository.findAll(PageRequest.of(page, pageable.getPageSize()));
         return reviews.map(ReviewMapper.INSTANCE::toReviewResponse);
     }
@@ -80,12 +83,11 @@ public class ReviewServiceImpl implements ReviewService{
                 .orElseThrow(
                         () -> new NotFoundResourceException("Artículo no encontrado")
                 );
-
         Page<Review> reviews = reviewRepository.findByArticleId(articleId, PageRequest.of(page, pageable.getPageSize()));
-
         if(reviews.isEmpty()) {
             throw new NotFoundResourceException("No se encontraron comentarios");
         }
+        log.info("get reviews by article id {}", page);
         return reviews.map(ReviewMapper.INSTANCE::toReviewResponse);
     }
 
@@ -96,6 +98,7 @@ public class ReviewServiceImpl implements ReviewService{
         if(reviewOptional.isEmpty()) {
             throw new NotFoundResourceException("No se encontró el recurso solicitado");
         }
+        log.info("get review by id {}", reviewOptional.get());
         return Optional.of(ReviewMapper.INSTANCE.toReviewResponse(reviewOptional.get()));
     }
 
@@ -107,6 +110,7 @@ public class ReviewServiceImpl implements ReviewService{
         },
                 () -> new NotFoundResourceException("No se encontró el recurso solicitado")
         );
+        log.info("review updated");
     }
 
     @Override
@@ -115,11 +119,13 @@ public class ReviewServiceImpl implements ReviewService{
         if(existReviewById(id)) {
             reviewRepository.deleteById(id);
         }
+        log.info("review deleted");
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existReviewById(Long id) {
+        log.info("review exists");
         return reviewRepository.existsById(id);
     }
 }

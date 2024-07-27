@@ -1,5 +1,6 @@
 package org.lumeninvestiga.backend.repositorio.tpi.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.UserLoginRequest;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.request.UserRegistrationRequest;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.response.AuthResponse;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
-
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService{
     private final UserRepository userRepository;
@@ -39,6 +40,7 @@ public class AuthServiceImpl implements AuthService{
         UserDetails user = userRepository.findByUsername(request.username())
                 .orElseThrow();
         String token = jwtService.getToken(user);
+        log.info("welcome {}", user.getUsername());
         return Optional.of(new AuthResponse(token));
     }
 
@@ -58,6 +60,7 @@ public class AuthServiceImpl implements AuthService{
             user.setPassword(passwordEncoder.encode(request.password()));
             user.setRole(Role.STUDENT);
             userRepository.save(user);
+            log.info("user created");
             return Optional.of(new AuthResponse(jwtService.getToken(user)));
         }
     }

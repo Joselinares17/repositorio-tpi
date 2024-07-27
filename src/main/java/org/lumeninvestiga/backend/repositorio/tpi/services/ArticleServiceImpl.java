@@ -1,6 +1,7 @@
 package org.lumeninvestiga.backend.repositorio.tpi.services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.mapper.ArticleMapper;
 import org.lumeninvestiga.backend.repositorio.tpi.dto.response.ArticleResponse;
 import org.lumeninvestiga.backend.repositorio.tpi.entities.data.Article;
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.lumeninvestiga.backend.repositorio.tpi.utils.Utility.extractTokenFromRequest;
-
+@Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService{
     private final ArticleRepository articleRepository;
@@ -49,9 +50,6 @@ public class ArticleServiceImpl implements ArticleService{
         String token = extractTokenFromRequest(httpRequest);
         String username = jwtService.getUsernameFromToken(token);
 
-        //TODO: Considerar que al llamar estas retornando todos los valores de User, por lo tanto,
-        // se refleja en una sentencia SQL extensa cuando solo debería obtenerse el username para
-        // la validación. (CONSULTAR)
         User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(ReferenceNotFoundException::new);
 
@@ -102,6 +100,7 @@ public class ArticleServiceImpl implements ArticleService{
         } catch (IOException e) {
             throw new SavingErrorException("Error al guardar el artículo", e);
         }
+        log.info("article saved to user {}", username);
         return Optional.of(ArticleMapper.INSTANCE.toArticleResponse(articleDb));
     }
 
@@ -109,14 +108,17 @@ public class ArticleServiceImpl implements ArticleService{
     @Transactional(readOnly = true)
     public List<ArticleResponse> getAllArticles(Pageable pageable) {
         int page = Utility.getCurrentPage(pageable);
+        log.info("query articles by page {}", page);
         return articleRepository.findAll(PageRequest.of(page, pageable.getPageSize())).stream()
                 .map(ArticleMapper.INSTANCE::toArticleResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ArticleResponse> getAllArticlesByKeyword(Pageable pageable, String keyword) {
         int page = Utility.getCurrentPage(pageable);
+        log.info("query articles by page and keyword {}", page);
         return articleRepository.findByTitleContaining(PageRequest.of(page, pageable.getPageSize()), keyword)
                 .stream()
                 .map(ArticleMapper.INSTANCE::toArticleResponse)
@@ -130,6 +132,7 @@ public class ArticleServiceImpl implements ArticleService{
         if(articleOptional.isEmpty()) {
             throw new NotFoundResourceException("Entidad no encontrada");
         }
+        log.info("get article by id {}", articleOptional.get());
         return Optional.of(ArticleMapper.INSTANCE.toArticleResponse(articleOptional.get()));
     }
 
@@ -140,6 +143,7 @@ public class ArticleServiceImpl implements ArticleService{
         if(articleOptional.isEmpty()) {
             throw new NotFoundResourceException("Entidad no encontrada");
         }
+        log.info("get article by name {}", articleOptional.get());
         return Optional.of(ArticleMapper.INSTANCE.toArticleResponse(articleOptional.get()));
     }
 
@@ -148,12 +152,15 @@ public class ArticleServiceImpl implements ArticleService{
     public void deleteArticleById(Long id) {
         if(existArticleById(id)) {
             articleRepository.deleteById(id);
+            log.info("article deleted {}", id);
         }
+        log.info("article not found");
     }
 
     @Override
     @Transactional
     public boolean existArticleById(Long id) {
+        log.info("article exists {}", id);
         return articleRepository.existsById(id);
     }
 
